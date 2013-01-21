@@ -1,0 +1,25 @@
+# Eclipse files
+.project
+.classpath
+.settings
+
+# Build results
+target
+
+# PyDev Files
+.pydevproject
+
+*/cachedir
+
+
+# go eclipse projects
+pkg
+bin
+
+
+# Vim swap files and Emacs backups
+.*.swp
+*~
+*.class
+*.pyc
+
