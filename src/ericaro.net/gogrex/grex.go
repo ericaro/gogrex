@@ -3,6 +3,7 @@ package gogrex
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 var (
@@ -48,6 +49,9 @@ type trans struct {
 
 func (t trans) String() string {
 	return fmt.Sprintf("%s(%d)", t.str, t.id)
+}
+func (t trans) Name() string {
+	return t.str
 }
 
 func (m *StringManager) NewVertex() Vertex {
@@ -105,12 +109,12 @@ func seq(this, that *Grex) *Grex {
 	// graph operations  // I still don't know what a graph looks like in go
 	mapThis := this.copyGraphInto(n) // return an association map
 	mapThat := that.copyGraphInto(n)
-	
-	fmt.Printf("seq raw:  %s\n", n.String() )
+
+	//fmt.Printf("seq raw:  %s\n", n.String())
 	// if 
 	_, io := that.outs[that.in]
-	
-	in :=mapThat[that.in]
+
+	in := mapThat[that.in]
 	// copy 
 	for out := range this.outs {
 		n.mergeOutbounds(in, mapThis[out])
@@ -118,14 +122,14 @@ func seq(this, that *Grex) *Grex {
 			n.outs[mapThis[out]] = nil
 		}
 	}
-	fmt.Printf("seq merged in:  %s\n", n.String() )
+	//fmt.Printf("seq merged in:  %s\n", n.String())
 
 	// result in is this.in, and resutl outs are that outs
 	n.in = mapThis[this.in]
 	for out := range that.outs {
 		n.outs[mapThat[out]] = nil
 	}
-	
+
 	n.graph.RemoveVertex(in)
 	delete(n.outs, mapThat[that.in])
 	return n
@@ -189,6 +193,52 @@ func star(this *Grex) *Grex {
 // #################################################################################################
 // Graph Operators
 // #################################################################################################
+
+func (g *Grex) InputVertex() Vertex {
+	return g.in
+}
+
+func (g *Grex) OutputVertice() (outputs []Vertex) {
+	for v := range g.outs {
+		outputs = append(outputs, v)
+	}
+	return
+}
+
+func (g *Grex) OutputEdges(vertex Vertex) (outputs []Edge) {
+	return g.graph.OutEdges(vertex)
+}
+
+//VertexByPath returns the state by a vertex path, "." separated
+func (g *Grex) VertexByPath(path string) Vertex {
+
+	elements := strings.Split(path, ".")
+	current := g.in
+
+	for _, next := range elements {
+		for _, t := range g.graph.OutEdges(current) {
+			if next == t.Name() {
+				current = g.graph.Dest(t)
+				break // get out of the transition loop
+			}
+		}
+	}
+	// now the whole path has been parsed, and current is our goal
+	return current
+}
+
+//Vertices return a slice of actual vertices
+func (g *Grex) Vertices() (vertices []Vertex) {
+	for v := range g.graph.vertices {
+		vertices = append(vertices, v)
+	}
+	return
+}
+
+//Edges returns the state by a vertex path, "." separated
+func (g *Grex) Edges() map[Edge]Bounds {
+	return g.graph.edges
+}
 
 func (g *Grex) mergeRaw(s1, s2 Vertex) Vertex {
 	s := g.manager.NewVertex()

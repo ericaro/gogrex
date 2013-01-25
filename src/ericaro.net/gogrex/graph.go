@@ -8,21 +8,30 @@ import (
 type Vertex interface{}
 
 //Edge represent any type that can act as a transition between states
-type Edge interface{}
+type Edge interface{
+Name() string
+}
 
-type bounds struct {
+type Bounds struct {
 	start, end Vertex
+}
+
+func (b *Bounds) Start() Vertex{
+	return b.start
+}
+func (b *Bounds) End() Vertex{
+	return b.end
 }
 
 type DirectedSparseMultigraph struct {
 	vertices map[Vertex]interface{}
-	edges    map[Edge]bounds
+	edges    map[Edge]Bounds
 }
 
 func NewDirectedSparseMultigraph() *DirectedSparseMultigraph {
 	return &DirectedSparseMultigraph{
 		vertices: make(map[Vertex]interface{}),
-		edges:    make(map[Edge]bounds),
+		edges:    make(map[Edge]Bounds),
 	}
 }
 
@@ -44,7 +53,7 @@ func (g *DirectedSparseMultigraph) RemoveEdge(t Edge) {
 }
 
 func (g *DirectedSparseMultigraph) AddEdge(t Edge, start, end Vertex) {
-	g.edges[t] = bounds{start, end}
+	g.edges[t] = Bounds{start, end}
 	g.AddVertex(start)
 	g.AddVertex(end)
 }

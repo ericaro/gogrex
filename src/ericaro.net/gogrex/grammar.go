@@ -2,7 +2,6 @@ package gogrex
 
 import (
 	"errors"
-	"fmt"
 )
 
 //grammar for the regexp
@@ -78,7 +77,7 @@ func run(tokens chan Token, output chan Token, errchan chan error) {
 				output <- o2
 				o2, err = stack.Peek()
 
-				fmt.Printf("        err %v , o2 %v\n", err, o2)
+				//fmt.Printf("        err %v , o2 %v\n", err, o2)
 			}
 			stack.Push(token)
 		//If the token is a left parenthesis, then push it onto the stack.
