@@ -1,4 +1,6 @@
 //package gogrex builds a regular graph based on any regular expression.
+// the regular expression is lexed, and the token are sent to the shunting yard algorithm. The shunting yard output is sorted in RPN, so it is really
+// easy to either process the expression as you wish. Include building the graph if needed.
 package gogrex
 
 import (
@@ -8,23 +10,7 @@ import (
 	"unicode/utf8"
 )
 
-/*
-
-STAR   : "*" >
- PLUS   : "+" >
- OPT    : "?" >
- BANG   : "&" >
- SEL    : "|" >
- SEQ    : "," >
- LEFT   : "(" >
- RIGHT  : ")" >
-#LETTER : [ "_", "a"-"z", "A"-"Z"] >
-#DIGIT  : [ "0"-"9"] >
- IDENTIFIER : < LETTER > (< LETTER > | < DIGIT > )* >
-
-*/
-
-
+// token types
 const (
 	typeError      = iota
 	typeEOF        = iota
@@ -35,31 +21,33 @@ const (
 	typeSeq        = iota
 	typeLeft       = iota
 	typeRight      = iota
-	typeIdentifier = iota 
+	typeIdentifier = iota
 	typeComment    = iota
 )
 
-var(
-	itemError      itemType = itemType{nature: typeError     ,operator:false , precedence: -1} // error occured
-	itemEOF        itemType = itemType{nature: typeEOF       ,operator:false , precedence: -1} // error occured
-	itemStar       itemType = itemType{nature: typeStar      ,operator:true  , precedence: 20} //   "*" 
-	itemPlus       itemType = itemType{nature: typePlus      ,operator:true  , precedence: 20} //   "+"
-	itemOpt        itemType = itemType{nature: typeOpt       ,operator:true  , precedence: 20} //   "?"
-	itemSel        itemType = itemType{nature: typeSel       ,operator:true  , precedence: 10} //   "|"
-	itemSeq        itemType = itemType{nature: typeSeq       ,operator:true  , precedence:  0} //   ","
-	itemLeft       itemType = itemType{nature: typeLeft      ,operator:false , precedence: -1} //   "("
-	itemRight      itemType = itemType{nature: typeRight     ,operator:false , precedence: -1} //   ")"
-	itemIdentifier itemType = itemType{nature: typeIdentifier,operator:false , precedence: -1} //   any valid identifier 
-	itemComment    itemType = itemType{nature: typeComment   ,operator:false , precedence: -1} //   any valid identifier 
+// ItemType object implements the Token interface to be sorted by the shunting Yard algorithm.
+
+var (
+	itemError      itemType = itemType{nature: typeError, operator: false, precedence: -1}        //   error occured
+	itemEOF        itemType = itemType{nature: typeEOF, operator: false, precedence: -1}          //   eof
+	itemStar       itemType = itemType{nature: typeStar, operator: true, precedence: 20}          //   "*" 
+	itemPlus       itemType = itemType{nature: typePlus, operator: true, precedence: 20}          //   "+"
+	itemOpt        itemType = itemType{nature: typeOpt, operator: true, precedence: 20}           //   "?"
+	itemSel        itemType = itemType{nature: typeSel, operator: true, precedence: 10}           //   "|"
+	itemSeq        itemType = itemType{nature: typeSeq, operator: true, precedence: 0}            //   ","
+	itemLeft       itemType = itemType{nature: typeLeft, operator: false, precedence: -1}         //   "("
+	itemRight      itemType = itemType{nature: typeRight, operator: false, precedence: -1}        //   ")"
+	itemIdentifier itemType = itemType{nature: typeIdentifier, operator: false, prenecedence: -1} //   any valid identifier
+	itemComment    itemType = itemType{nature: typeComment, operator: false, precedence: -1}      //   any valid comment
 
 )
+
 const eof = -1
 
 // itemType identifies the type of lex items.
-type itemType struct{
+type itemType struct {
 	nature, precedence int
-	operator bool 
-	
+	operator           bool
 }
 
 // item represents a token returned from the scanner.
@@ -68,21 +56,22 @@ type item struct {
 	val string   // Value, such as "23.2".
 }
 
-func (i item) IsOperator()bool { return i.typ.operator}
-func (i item) IsLeaf()bool { return i.typ.nature == typeIdentifier}
-func (i item) IsLeftParenthesis()bool { return i.typ.nature == typeLeft}
-func (i item) IsRightParenthesis()bool { return i.typ.nature == typeRight}
-func (i item) IsLeftAssociative()bool { return true} // does not apply here
-func (i item) Precedence()int { return i.typ.precedence} // does not apply here
+//Token implementation
 
+func (i item) IsOperator() bool         { return i.typ.operator }
+func (i item) IsLeaf() bool             { return i.typ.nature == typeIdentifier }
+func (i item) IsLeftParenthesis() bool  { return i.typ.nature == typeLeft }
+func (i item) IsRightParenthesis() bool { return i.typ.nature == typeRight }
+func (i item) IsLeftAssociative() bool  { return true }             // does not apply here
+func (i item) Precedence() int          { return i.typ.precedence } // does not apply here
 
-//func (i item) isFunction()bool { return false} // no function operators here
+//func (i item) isFunction()bool { return false} // no function in this language
 
 type lexer struct {
-	input string    // the string being scanned.
-	start int       // start position of this item.
-	pos   int       // current position in the input.
-	width int       // width of last rune read from input.
+	input string     // the string being scanned.
+	start int        // start position of this item.
+	pos   int        // current position in the input.
+	width int        // width of last rune read from input.
 	items chan Token // channel of scanned items.
 }
 
@@ -133,11 +122,12 @@ func lex(input string) chan Token {
 	return l.items
 }
 func (l *lexer) run() {
-    for state := lexText; state != nil; {
-        state = state(l)
-    }
-    close(l.items) // No more tokens will be delivered.
+	for state := lexText; state != nil; {
+		state = state(l)
+	}
+	close(l.items) // No more tokens will be delivered.
 }
+
 // next returns the next rune in the input.
 func (l *lexer) next() (r rune) {
 	if l.pos >= len(l.input) {
@@ -148,19 +138,6 @@ func (l *lexer) next() (r rune) {
 	l.pos += l.width
 	return r
 }
-//
-//// nextItem returns the next item from the input.
-//func (l *lexer) nextItem() item {
-//	for {
-//		select {
-//		case item := <-l.items:
-//			return item
-//		default:
-//			l.state = l.state(l)
-//		}
-//	}
-//	panic("not reached")
-//}
 
 // ignore skips over the pending input before this point.
 func (l *lexer) ignore() {
@@ -171,31 +148,6 @@ func (l *lexer) ignore() {
 // Can be called only once per call of next.
 func (l *lexer) backup() {
 	l.pos -= l.width
-}
-
-// peek returns but does not consume
-// the next rune in the input.
-func (l *lexer) peek() rune {
-	r := l.next()
-	l.backup()
-	return r
-}
-
-// accept consumes the next rune
-// if it's from the valid set.
-func (l *lexer) accept(valid string) bool {
-	if strings.IndexRune(valid, l.next()) >= 0 {
-		return true
-	}
-	l.backup()
-	return false
-}
-
-// acceptRun consumes a run of runes from the valid set.
-func (l *lexer) acceptRun(valid string) {
-	for strings.IndexRune(valid, l.next()) >= 0 {
-	}
-	l.backup()
 }
 
 // error returns an error token and terminates the scan
@@ -234,15 +186,15 @@ func lexText(l *lexer) stateFn {
 		case unicode.IsLetter(r):
 			return lexIdentifier // now read an identifier
 		case r == '/': // comment start
-			
-			switch r = l.next() ; {
-			case r== '/':
-			 return lexSingleLineComment 
-			case r== '*':
-			 return lexMultiLineComment 
+
+			switch r = l.next(); {
+			case r == '/':
+				return lexSingleLineComment
+			case r == '*':
+				return lexMultiLineComment
 			default:
 				l.errorf("invalid comment start /%s", r)
-			} 		
+			}
 		default:
 			l.errorf("Unknown character %s", r)
 		}
@@ -250,27 +202,25 @@ func lexText(l *lexer) stateFn {
 	return nil // Stop the run loop.
 }
 
-
 func lexIdentifier(l *lexer) stateFn {
-	for r:= l.next() ; unicode.IsLetter(r) || unicode.IsDigit(r); r = l.next(){
+	for r := l.next(); unicode.IsLetter(r) || unicode.IsDigit(r); r = l.next() {
 	}
 	l.backup()
 	l.emit(itemIdentifier)
 	return lexText
 }
-	
+
 func lexSingleLineComment(l *lexer) stateFn {
-	for r:= l.next() ; r != '\n'; r = l.next(){
+	for r := l.next(); r != '\n'; r = l.next() {
 	}
 	l.emit(itemComment)
 	return lexText
 }
 func lexMultiLineComment(l *lexer) stateFn {
-	p:= l.next()
-	for r:= l.next() ; p!='*' && r != '/'; r = l.next(){
+	p := l.next()
+	for r := l.next(); p != '*' && r != '/'; r = l.next() {
 	}
-	
+
 	l.emit(itemComment)
 	return lexText
 }
-
