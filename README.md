@@ -1,7 +1,7 @@
 gogrex
 ======
 
-gogrex provides a regular expression to a graph transformer in golang
+gogrex is a *library* that turns any *regular expression* into a *graph* available through a simple API.
 
 <code>
 Parse(" name, alias?, (telephone, email)+ " ) 
@@ -10,4 +10,3 @@ results in this graph:
 
 <img src="https://github.com/ericaro/gogrex/raw/master/graph.png">
 
-available under a simple graph API.
