@@ -5,7 +5,6 @@ package gogrex
 
 import (
 	"fmt"
-	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -28,17 +27,17 @@ const (
 // ItemType object implements the Token interface to be sorted by the shunting Yard algorithm.
 
 var (
-	itemError      itemType = itemType{nature: typeError, operator: false, precedence: -1}        //   error occured
-	itemEOF        itemType = itemType{nature: typeEOF, operator: false, precedence: -1}          //   eof
-	itemStar       itemType = itemType{nature: typeStar, operator: true, precedence: 20}          //   "*" 
-	itemPlus       itemType = itemType{nature: typePlus, operator: true, precedence: 20}          //   "+"
-	itemOpt        itemType = itemType{nature: typeOpt, operator: true, precedence: 20}           //   "?"
-	itemSel        itemType = itemType{nature: typeSel, operator: true, precedence: 10}           //   "|"
-	itemSeq        itemType = itemType{nature: typeSeq, operator: true, precedence: 0}            //   ","
-	itemLeft       itemType = itemType{nature: typeLeft, operator: false, precedence: -1}         //   "("
-	itemRight      itemType = itemType{nature: typeRight, operator: false, precedence: -1}        //   ")"
-	itemIdentifier itemType = itemType{nature: typeIdentifier, operator: false, prenecedence: -1} //   any valid identifier
-	itemComment    itemType = itemType{nature: typeComment, operator: false, precedence: -1}      //   any valid comment
+	itemError      itemType = itemType{nature: typeError, operator: false, precedence: -1}      //   error occured
+	itemEOF        itemType = itemType{nature: typeEOF, operator: false, precedence: -1}        //   eof
+	itemStar       itemType = itemType{nature: typeStar, operator: true, precedence: 20}        //   "*" 
+	itemPlus       itemType = itemType{nature: typePlus, operator: true, precedence: 20}        //   "+"
+	itemOpt        itemType = itemType{nature: typeOpt, operator: true, precedence: 20}         //   "?"
+	itemSel        itemType = itemType{nature: typeSel, operator: true, precedence: 10}         //   "|"
+	itemSeq        itemType = itemType{nature: typeSeq, operator: true, precedence: 0}          //   ","
+	itemLeft       itemType = itemType{nature: typeLeft, operator: false, precedence: -1}       //   "("
+	itemRight      itemType = itemType{nature: typeRight, operator: false, precedence: -1}      //   ")"
+	itemIdentifier itemType = itemType{nature: typeIdentifier, operator: false, precedence: -1} //   any valid identifier
+	itemComment    itemType = itemType{nature: typeComment, operator: false, precedence: -1}    //   any valid comment
 
 )
 
