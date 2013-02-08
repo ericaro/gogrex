@@ -110,17 +110,17 @@ func (g *DirectedSparseMultigraph) String(in Vertex, outs map[Vertex]interface{}
 	`, in)
 	for k := range outs {
 		if k == in {
-			str += fmt.Sprintf(`%s [label="IO %s",shape=box];
-	`, k, k)
+			str += fmt.Sprintf(`%s [label="IO",shape=box];
+	`, k)
 		} else {
-			str += fmt.Sprintf(`%s [label="Out %s",shape=box];
-	`, k, k)
+			str += fmt.Sprintf(`%s [label="Out",shape=box];
+	`, k)
 		}
 	}
 
 	for t, b := range g.edges {
 		str += fmt.Sprintf(`%s -> %s [label="%s"];
-	`, b.start, b.end, t)
+	`, b.start, b.end, t.Name())
 	}
 	str += "}"
 	return str
