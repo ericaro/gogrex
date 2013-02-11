@@ -12,8 +12,9 @@ results in this graph:
 
 
 
-The code is available at http://www.gopack.me . You can use grex just by adding it to your project
-<code>
+The code is available at http://www.gopack.me .
+You can use grex just by adding it to your project
+<pre>
 gpk r+ ericaro.net/gogrex 1.0.0
-</code>
+</pre>
 
