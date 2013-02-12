@@ -268,29 +268,29 @@ func aTestLex(t *testing.T) {
 	}
 }
 
-func TestShunting(t *testing.T) {
-	fmt.Printf("test shunting\n")
-	for _, s := range exps {
-		//fmt.Printf("[]item{ // %s\n", s)
-		fmt.Printf("shunting %s\n", s)
-		parse(s)
-//		tokens := lex(s)
-//		grammar, errchan := shunting(tokens)
-//		for  {
-//			select {
-//			case t,ok := <-grammar:
-//				fmt.Printf("    %s\n", t)
-//				if !ok {
-//					break
-//				}
-//			case err, ok := <-errchan:
-//				fmt.Printf("  err  %v\n", err)
-//				if !ok {
-//					break
-//				}
-//			}
-//		}
-//		fmt.Printf("\n\n")
-
-	}
-}
+//func TestShunting(t *testing.T) {
+//	fmt.Printf("test shunting\n")
+//	for _, s := range exps {
+//		//fmt.Printf("[]item{ // %s\n", s)
+//		fmt.Printf("shunting %s\n", s)
+//		parse(s)
+////		tokens := lex(s)
+////		grammar, errchan := shunting(tokens)
+////		for  {
+////			select {
+////			case t,ok := <-grammar:
+////				fmt.Printf("    %s\n", t)
+////				if !ok {
+////					break
+////				}
+////			case err, ok := <-errchan:
+////				fmt.Printf("  err  %v\n", err)
+////				if !ok {
+////					break
+////				}
+////			}
+////		}
+////		fmt.Printf("\n\n")
+//
+//	}
+//}
