@@ -18,3 +18,5 @@ You can use grex just by adding it to your project
 gpk r+ ericaro.net/gogrex 1.0.0
 </pre>
 
+the code is licensed under Apache License 2.0
+
