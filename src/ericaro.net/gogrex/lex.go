@@ -182,7 +182,7 @@ func lexText(l *lexer) stateFn {
 			l.emit(itemRight)
 		case unicode.IsSpace(r): // auto ignored
 			l.ignore()
-		case unicode.IsLetter(r):
+		case unicode.IsLetter(r) || r== '_':
 			return lexIdentifier // now read an identifier
 		case r == '/': // comment start
 
@@ -202,7 +202,7 @@ func lexText(l *lexer) stateFn {
 }
 
 func lexIdentifier(l *lexer) stateFn {
-	for r := l.next(); unicode.IsLetter(r) || unicode.IsDigit(r); r = l.next() {
+	for r := l.next(); unicode.IsLetter(r) || unicode.IsDigit(r) || r== '_'; r = l.next() {
 	}
 	l.backup()
 	l.emit(itemIdentifier)
